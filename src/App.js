@@ -1,37 +1,170 @@
-import "bootstrap/dist/css/bootstrap.min.css";
+import './App.css';
+
 import {
   Route,
   Routes,
   NavLink,
-  HashRouter
+  HashRouter, Link,
 } from "react-router-dom";
-import Products from "./Products";
-import Categories from "./Categories";
-import Orders from "./Orders";
+import ProductsComponent from "./components/products.component";
+import Categories from "./components/categories.component";
+import Dropdown from 'react-bootstrap/Dropdown';
 
-function App() {
 
-  return (
-    <HashRouter>
-      <h1 className="text-center" >Hardware Rent</h1>
-      <div className="list-group list-group-horizontal">
-         <NavLink to="/products" className="list-group-item list-group-item-action ">Products</NavLink>
+import AuthService from "./services/auth.service";
 
-          <NavLink to="/categories" className="list-group-item list-group-item-action ">Categories</NavLink>
 
-          <NavLink to="/orders" className="list-group-item list-group-item-action ">Orders</NavLink>
+
+import Login from "./components/login.component";
+import Register from "./components/register.component";
+import Home from "./components/home.component";
+import Profile from "./components/profile.component";
+import BoardUser from "./components/board-user.component";
+import BoardModerator from "./components/board-moderator.component";
+import BoardAdmin from "./components/board-admin.component";
+import {Component} from "react";
+import {DropdownButton} from "react-bootstrap";
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.logOut = this.logOut.bind(this);
+
+    this.state = {
+      showModeratorBoard: false,
+      showAdminBoard: false,
+      currentUser: undefined,
+    };
+  }
+
+  componentDidMount() {
+    const user = AuthService.getCurrentUser();
+    if (user) {
+      this.setState({
+        currentUser: user,
+        showModeratorBoard: user.authorities.includes("ROLE_MODERATOR"),
+        showAdminBoard: user.authorities.includes("ROLE_ADMIN"),
+      });
+    }
+  }
+
+  logOut() {
+    AuthService.logout();
+    this.setState({
+      showModeratorBoard: false,
+      showAdminBoard: false,
+      currentUser: undefined,
+    });
+  }
+
+  render() {
+    const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
+
+    return (
+      <div>
+
+        <nav className="navbar navbar-expand navbar-dark bg-dark">
+          <Link to={"/"} className="navbar-brand">
+            bezKoder
+          </Link>
+          <div className="navbar-nav mr-auto">
+            <li className="nav-item">
+              <Link to={"/home"} className="nav-link">
+                Home
+              </Link>
+            </li>
+
+            {showModeratorBoard && (
+              <li className="nav-item">
+                <Link to={"/mod"} className="nav-link">
+                  Moderator Board
+                </Link>
+              </li>
+            )}
+
+            {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/admin"} className="nav-link">
+                  Admin Board
+                </Link>
+              </li>
+            )}
+
+            {currentUser && (
+              <li className="nav-item">
+                <Link to={"/user"} className="nav-link">
+                  User
+                </Link>
+              </li>
+            )}
+          </div>
+          {currentUser && (
+            <div>
+
+              <DropdownButton className="dropdown-button" variant="text" title="Tables">
+                <Dropdown.Item>
+                  <Link to={"/products"} className="nav-link">
+                    Products
+                  </Link>
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <Link to={"/categories"} className="nav-link">
+                    Categories
+                  </Link>
+                </Dropdown.Item>
+              </DropdownButton>
+            </div>
+
+          )
+          }
+          {currentUser ? (
+            <div className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <Link to={"/profile"} className="nav-link">
+                  {currentUser.username}
+                </Link>
+              </li>
+              <li className="nav-item">
+                <a href="/login" className="nav-link" onClick={this.logOut}>
+                  LogOut
+                </a>
+              </li>
+            </div>
+          ) : (
+            <div className="navbar-nav ml-auto">
+              <li className="nav-item">
+                <Link to={"/login"} className="nav-link">
+                  Login
+                </Link>
+              </li>
+
+              <li className="nav-item">
+                <Link to={"/register"} className="nav-link">
+                  Sign Up
+                </Link>
+              </li>
+            </div>
+          )}
+
+        </nav>
+
+        <div className="container mt-3">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/user" element={<BoardUser />} />
+            <Route path="/mod" element={<BoardModerator />} />
+            <Route path="/admin" element={<BoardAdmin />} />
+            <Route path="/products" element={<ProductsComponent />} />
+            <Route path="/categories" element={<Categories />} />
+
+          </Routes>
+        </div>
       </div>
-
-      <div className="content">
-        <Routes>
-          <Route path="/products" element={<Products />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/orders" element={<Orders />} />
-        </Routes>
-      </div>
-    </HashRouter>
-
-  );
+    );
+  }
 }
 
 export default App;

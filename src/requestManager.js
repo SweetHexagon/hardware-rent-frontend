@@ -1,19 +1,18 @@
 import React from 'react';
-export async function getData(accessToken,url) {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Authorization': 'Bearer ' + accessToken
-    },
-  });
-  const reader = response.body.getReader();
-  let data = '';
-  await reader.read().then(function processResult(result) {
-    if (result.done) {
-      return;
-    }
-    data += new TextDecoder('utf-8').decode(result.value);
-    return reader.read().then(processResult);
-  });
-  return  JSON.parse(data);
+import axios from "axios";
+export async function getData(accessToken,url)
+{
+  const username = "admin"
+  const password = "admin"
+  return axios
+    .post("http://localhost:8080/" + "login", {},{headers: {
+        Authorization: "Basic " + btoa(username + ":" + password)
+      }})
+    .then(response => {
+      if (response.data.accessToken) {
+        localStorage.setItem("user", JSON.stringify(response.data));
+      }
+
+      return response.data;
+    });
 }
