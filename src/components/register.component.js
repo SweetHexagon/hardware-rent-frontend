@@ -122,12 +122,12 @@ export default class Register extends Component {
 
   render() {
     return (
-      <div className="col-md-12">
-        <div className="card card-container">
+      <div className="col-md-12 d-flex justify-content-center align-items-center ">
+        <div className="card card-container bg-light p-3 align-items-center" >
           <img
             src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
             alt="profile-img"
-            className="profile-img-card"
+            className="card-img-top rounded-circle mb-2 w-50"
           />
 
           <Form
@@ -138,8 +138,8 @@ export default class Register extends Component {
           >
             {!this.state.successful && (
               <div>
-                <div className="form-group">
-                  <label htmlFor="username">Username</label>
+                <div className="form-group mb-2">
+                  <label htmlFor="username" className="mb-2">Username</label>
                   <Input
                     type="text"
                     className="form-control"
@@ -150,8 +150,8 @@ export default class Register extends Component {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
+                <div className="form-group mb-2">
+                  <label htmlFor="email" className="mb-2">Email</label>
                   <Input
                     type="text"
                     className="form-control"
@@ -162,8 +162,8 @@ export default class Register extends Component {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="password">Password</label>
+                <div className="form-group mb-2">
+                  <label htmlFor="password" className="mb-2">Password</label>
                   <Input
                     type="password"
                     className="form-control"
@@ -175,7 +175,7 @@ export default class Register extends Component {
                 </div>
 
                 <div className="form-group">
-                  <button className="btn btn-primary btn-block">Sign Up</button>
+                  <button className="btn btn-primary btn-block w-100">Sign Up</button>
                 </div>
               </div>
             )}

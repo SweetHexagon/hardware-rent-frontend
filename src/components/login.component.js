@@ -2,9 +2,7 @@ import React, { Component } from "react";
 import Form from "react-validation/build/form";
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
-
 import AuthService from "../services/auth.service";
-
 import { withRouter } from '../common/with-router';
 
 const required = value => {
@@ -83,12 +81,13 @@ class Login extends Component {
 
   render() {
     return (
-      <div className="col-md-12">
-        <div className="card card-container">
+
+      <div className="col-md-12 d-flex justify-content-center align-items-center ">
+        <div className="card card-container bg-light p-3 align-items-center" >
           <img
             src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
             alt="profile-img"
-            className="profile-img-card"
+            className="card-img-top rounded-circle mb-2 w-50"
           />
 
           <Form
@@ -97,8 +96,8 @@ class Login extends Component {
               this.form = c;
             }}
           >
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
+            <div className="form-group mb-2">
+              <label htmlFor="username" className="mb-2">Username</label>
               <Input
                 type="text"
                 className="form-control"
@@ -109,8 +108,8 @@ class Login extends Component {
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
+            <div className="form-group mb-2">
+              <label htmlFor="password" className="mb-2">Password</label>
               <Input
                 type="password"
                 className="form-control"
@@ -121,9 +120,9 @@ class Login extends Component {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-group ">
               <button
-                className="btn btn-primary btn-block"
+                className="btn btn-primary btn-block w-100"
                 disabled={this.state.loading}
               >
                 {this.state.loading && (

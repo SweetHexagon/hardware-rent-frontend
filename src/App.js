@@ -24,6 +24,8 @@ import BoardModerator from "./components/board-moderator.component";
 import BoardAdmin from "./components/board-admin.component";
 import {Component} from "react";
 import {DropdownButton} from "react-bootstrap";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -39,10 +41,11 @@ class App extends Component {
   componentDidMount() {
     const user = AuthService.getCurrentUser();
     if (user) {
+      console.log(user.authorities)
       this.setState({
         currentUser: user,
-        showModeratorBoard: user.authorities.includes("ROLE_MODERATOR"),
-        showAdminBoard: user.authorities.includes("ROLE_ADMIN"),
+        showModeratorBoard: user.authorities.some(authority => authority.authority === 'ROLE_MODERATOR'),
+        showAdminBoard: user.authorities.some(authority => authority.authority === 'ROLE_ADMIN')
       });
     }
   }
@@ -60,18 +63,14 @@ class App extends Component {
     const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
 
     return (
-      <div>
+      <div >
 
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
-          <Link to={"/"} className="navbar-brand">
-            bezKoder
+        <nav className="navbar navbar-expand navbar-dark bg-dark ">
+          <Link  to={"/"} className="navbar-brand ps-2">
+            Hardware Rent
           </Link>
           <div className="navbar-nav mr-auto">
-            <li className="nav-item">
-              <Link to={"/home"} className="nav-link">
-                Home
-              </Link>
-            </li>
+
 
             {showModeratorBoard && (
               <li className="nav-item">
@@ -92,14 +91,13 @@ class App extends Component {
             {currentUser && (
               <li className="nav-item">
                 <Link to={"/user"} className="nav-link">
-                  User
+                  User Board
                 </Link>
               </li>
             )}
           </div>
           {currentUser && (
             <div>
-
               <DropdownButton className="dropdown-button" variant="text" title="Tables">
                 <Dropdown.Item>
                   <Link to={"/products"} className="nav-link">
@@ -117,20 +115,20 @@ class App extends Component {
           )
           }
           {currentUser ? (
-            <div className="navbar-nav ml-auto">
+            <div className="navbar-nav ms-auto ">
               <li className="nav-item">
                 <Link to={"/profile"} className="nav-link">
-                  {currentUser.username}
+                  My Profile
                 </Link>
               </li>
-              <li className="nav-item">
-                <a href="/login" className="nav-link" onClick={this.logOut}>
+              <li className="nav-item ">
+                <a href="/login" className="nav-link " onClick={this.logOut}>
                   LogOut
                 </a>
               </li>
             </div>
           ) : (
-            <div className="navbar-nav ml-auto">
+            <div className="navbar-nav ms-auto ">
               <li className="nav-item">
                 <Link to={"/login"} className="nav-link">
                   Login
