@@ -1,42 +1,36 @@
 import React, { Component } from "react";
 
-import UserService from "../services/user.service";
+import CategoryService from "../services/categories.service";
+import Form from 'react-bootstrap/Form';
+import {Alert, Button} from "react-bootstrap";
+import AuthService from "../services/auth.service";
 
 export default class BoardUser extends Component {
   constructor(props) {
     super(props);
 
+
+
     this.state = {
-      content: ""
+      content: "",
+      errorMessage: undefined
     };
   }
+  handleSubmit(e) {
+    e.preventDefault();
 
-  componentDidMount() {
-    UserService.getUserBoard().then(
-      response => {
-        this.setState({
-          content: response.data
-        });
-      },
-      error => {
-        this.setState({
-          content:
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString()
-        });
-      }
-    );
+    this.setState({
+      errorMessage: undefined
+    });
+
   }
 
+
   render() {
+    const { content, errorMessage } = this.state;
     return (
       <div className="container">
-        <header className="jumbotron">
-          <h3>{this.state.content}</h3>
-        </header>
+
       </div>
     );
   }

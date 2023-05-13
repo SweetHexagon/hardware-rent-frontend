@@ -1,19 +1,10 @@
 import React, { Component } from "react";
-import Form from "react-validation/build/form";
+import Form from 'react-bootstrap/Form';
 import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 import AuthService from "../services/auth.service";
 import { withRouter } from '../common/with-router';
-
-const required = value => {
-  if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This field is required!
-      </div>
-    );
-  }
-};
+import {Alert, Button} from "react-bootstrap";
 
 class Login extends Component {
   constructor(props) {
@@ -25,7 +16,7 @@ class Login extends Component {
     this.state = {
       username: "",
       password: "",
-      loading: false,
+      error: false,
       message: ""
     };
   }
@@ -46,40 +37,35 @@ class Login extends Component {
     e.preventDefault();
 
     this.setState({
-      message: "",
-      loading: true
+      errorMessage: undefined,
     });
 
-    this.form.validateAll();
 
-    if (this.checkBtn.context._errors.length === 0) {
       AuthService.login(this.state.username, this.state.password).then(
         () => {
           this.props.router.navigate("/profile");
           window.location.reload();
         },
         error => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
+          const status = error.response.status;
+          let resMessage = "";
+            if(status === 401){
+              resMessage = "invalid user";
+            }else{
+              resMessage = "error";
+            }
 
           this.setState({
-            loading: false,
-            message: resMessage
+            errorMessage: resMessage
           });
         }
       );
-    } else {
-      this.setState({
-        loading: false
-      });
-    }
+
   }
 
   render() {
+    const { errorMessage } = this.state;
+
     return (
 
       <div className="col-md-12 d-flex justify-content-center align-items-center ">
@@ -96,56 +82,26 @@ class Login extends Component {
               this.form = c;
             }}
           >
-            <div className="form-group mb-2">
-              <label htmlFor="username" className="mb-2">Username</label>
-              <Input
-                type="text"
-                className="form-control"
-                name="username"
-                value={this.state.username}
-                onChange={this.onChangeUsername}
-                validations={[required]}
-              />
-            </div>
-
-            <div className="form-group mb-2">
-              <label htmlFor="password" className="mb-2">Password</label>
-              <Input
-                type="password"
-                className="form-control"
-                name="password"
-                value={this.state.password}
-                onChange={this.onChangePassword}
-                validations={[required]}
-              />
-            </div>
-
-            <div className="form-group ">
-              <button
-                className="btn btn-primary btn-block w-100"
-                disabled={this.state.loading}
-              >
-                {this.state.loading && (
-                  <span className="spinner-border spinner-border-sm"></span>
-                )}
-                <span>Login</span>
-              </button>
-            </div>
-
-            {this.state.message && (
-              <div className="form-group">
-                <div className="alert alert-danger" role="alert">
-                  {this.state.message}
-                </div>
-              </div>
-            )}
-            <CheckButton
-              style={{ display: "none" }}
-              ref={c => {
-                this.checkBtn = c;
-              }}
-            />
+            <Form.Group>
+              <Form.Label>Username</Form.Label>
+              <Form.Control type="text"
+                            placeholder="Enter username"
+                            onChange={this.onChangeUsername}
+                            required/>
+            </Form.Group>
+            <Form.Group className="mb-2">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="password"
+                            placeholder="Enter password"
+                            onChange={this.onChangePassword}
+                            required/>
+            </Form.Group>
+            <Button className="w-100 mb-2" variant="primary" type="submit">
+              Submit
+            </Button>
+            {errorMessage && (<Alert variant="danger" className="text-center">{errorMessage}</Alert>)}
           </Form>
+
         </div>
       </div>
     );

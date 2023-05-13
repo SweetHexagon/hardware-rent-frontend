@@ -3,34 +3,39 @@ import Table from '../Table';
 import '../App.css';
 import {Navigate} from "react-router-dom";
 import ProductsService from "../services/products.service";
+import productsService from "../services/products.service";
+import {Alert} from "react-bootstrap";
 
 export default class ProductsComponent extends React.Component {
 
   constructor(props) {
     super(props);
+    this.deleteProduct = this.deleteProduct.bind(this);
+
 
     this.state = {
       redirect: null,
-      ready: false,
-      products: []
+      products: [],
+      errorMessage: undefined
     };
   }
-  async componentDidMount() {
-    try {
-      const response = await ProductsService.getAllProducts();
-      if (!response) {
-        this.setState({ redirect: "/home" });
-      } else {
-        this.setState({ products: response.data, ready: true });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+   componentDidMount() {
+      ProductsService.getAllProducts().then((response)=>{
+        this.setState({ products: response.data});
+      }).catch( (error)=>{
+        this.setState({errorMessage: error.message});
+      });
+  }
+  deleteProduct(id) {
+    productsService.deleteProduct(id).then(
+      ()=>{window.location.reload();}
+    ).catch((error)=>{
+      this.setState({errorMessage: error.message});
+    });
   }
 
-
   render() {
-    const { products, ready } = this.state;
+    const { products, errorMessage} = this.state;
     if (this.state.redirect) {
       return <Navigate to={this.state.redirect} />
     }
@@ -39,19 +44,23 @@ export default class ProductsComponent extends React.Component {
     }
     const formatProductsData = () => {
       let modifiedData = JSON.parse(JSON.stringify(products));
-      modifiedData.map(row => {
-        row["category"] = row["category"]["categoryName"]
-      })
       return modifiedData;
     }
-    if(ready)
-    {
+
+
       return (
+
         <div className="container">
           <h1 className="d-flex justify-content-center">Products</h1>
-          <Table theadData={getHeadings()} tbodyData={formatProductsData()}/>
+          {products.length>0?(
+            <Table theadData={getHeadings()} tbodyData={formatProductsData()} onDelete={this.deleteProduct}/>
+          ):(
+            <h2>No data</h2>
+          )}
+          {errorMessage && <Alert variant="danger" className="text-center">{errorMessage}</Alert>}
+
         </div>
       );
-    }
+
   }
 }

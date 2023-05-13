@@ -2,36 +2,42 @@ import React from 'react';
 import Table from '../Table';
 import '../App.css';
 import {Navigate} from "react-router-dom";
-import CategoriesService from "../services/categories.service";
+import categoryService from "../services/categories.service";
+import {Alert} from "react-bootstrap";
 
 export default class CategoriesComponent extends React.Component {
 
   constructor(props) {
     super(props);
+    this.deleteCategory = this.deleteCategory.bind(this);
 
     this.state = {
       redirect: null,
       ready: false,
+      errorMessage: undefined,
       categories: []
     };
   }
-  async componentDidMount() {
-    try {
-      const response = await CategoriesService.getAllCategories();
-      if (!response) {
-        this.setState({ redirect: "/home" });
-      } else {
-        console.log(response)
-        this.setState({ categories: response.data, ready: true });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  componentDidMount() {
+
+      categoryService.getAllCategories().then((response)=>{
+        this.setState({ categories: response.data});
+      }).catch( (error)=>{
+        this.setState({errorMessage: error.message});
+      });
+  }
+  deleteCategory(id) {
+    categoryService.deleteCategory(id).then(
+      ()=>{window.location.reload();}
+    ).catch((error)=>{
+      this.setState({errorMessage: error.message});
+    });
   }
 
 
+
   render() {
-    const { categories, ready } = this.state;
+    const { categories, errorMessage } = this.state;
     if (this.state.redirect) {
       return <Navigate to={this.state.redirect} />
     }
@@ -40,18 +46,21 @@ export default class CategoriesComponent extends React.Component {
     }
     const formatCategoriesData = () => {
       let modifiedData = JSON.parse(JSON.stringify(categories));
-
       return modifiedData;
     }
-    if(ready)
-    {
+
       return (
 
         <div className="container">
           <h1 className="d-flex justify-content-center">Categories</h1>
-          <Table theadData={getHeadings()} tbodyData={formatCategoriesData()}/>
+          {categories.length>0?(
+            <Table theadData={getHeadings()} tbodyData={formatCategoriesData()} onDelete={this.deleteCategory}/>
+          ):(
+            <h2>No data</h2>
+          )}
+          {errorMessage && <Alert variant="danger" className="text-center">{errorMessage}</Alert>}
+
         </div>
       );
-    }
   }
 }

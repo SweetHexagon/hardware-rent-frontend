@@ -41,7 +41,6 @@ class App extends Component {
   componentDidMount() {
     const user = AuthService.getCurrentUser();
     if (user) {
-      console.log(user.authorities)
       this.setState({
         currentUser: user,
         showModeratorBoard: user.authorities.some(authority => authority.authority === 'ROLE_MODERATOR'),
@@ -99,15 +98,11 @@ class App extends Component {
           {currentUser && (
             <div>
               <DropdownButton className="dropdown-button" variant="text" title="Tables">
-                <Dropdown.Item>
-                  <Link to={"/products"} className="nav-link">
-                    Products
-                  </Link>
+                <Dropdown.Item href="/products">
+                  Products
                 </Dropdown.Item>
-                <Dropdown.Item>
-                  <Link to={"/categories"} className="nav-link">
-                    Categories
-                  </Link>
+                <Dropdown.Item href="/categories">
+                  Categories
                 </Dropdown.Item>
               </DropdownButton>
             </div>
