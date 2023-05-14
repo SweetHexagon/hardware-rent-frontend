@@ -1,8 +1,9 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
 .dropdown-toggle {
     color:#FFFFFF8C !important;
-
+    -webkit-box-shadow: none!important;
 }
 .dropdown-toggle:hover {
     color:#FFFFFFBF !important;
-
+    -webkit-box-shadow: none!important;
 }

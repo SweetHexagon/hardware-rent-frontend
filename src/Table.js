@@ -1,7 +1,11 @@
+import AuthService from "./services/auth.service";
 
-export default function Table({theadData, tbodyData, onDelete})
+export default function Table({theadData, tbodyData, onDelete, onAddToCart})
 {
-  if (theadData.length > 0 && tbodyData.length>0)
+  const user = AuthService.getCurrentUser();
+  const isAdmin = user.authorities.some(authority => authority.authority === 'ROLE_ADMIN')
+
+  if (theadData && tbodyData && theadData.length > 0 && tbodyData.length>0)
     return (
 
     <table className="table table-striped">
@@ -18,7 +22,10 @@ export default function Table({theadData, tbodyData, onDelete})
             {
               return <td key={index}>{JSON.stringify(row[key])}</td>
             })}
-            <td className="text-end"><button className="btn-close" onClick={()=>{onDelete(row.id)}}/></td>
+            {onAddToCart &&
+              <td className="text-end"><button className="bi bi-plus-square border-0 bg-transparent " onClick={()=>{onAddToCart(row.id, 1)}}/></td>}
+            {onDelete && isAdmin &&
+              <td className="text-end"><button className="bi bi-trash border-0 bg-transparent" onClick={()=>{onDelete(row.id)}}/></td>}
           </tr>;
         })}
       </tbody>

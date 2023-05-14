@@ -11,6 +11,8 @@ class AuthService {
       .then(response => {
         if (response.data.accessToken) {
           localStorage.setItem("user", JSON.stringify(response.data));
+          localStorage.setItem("products", JSON.stringify([]));
+          localStorage.setItem("cart", JSON.stringify([]));
         }
 
         return response.data;

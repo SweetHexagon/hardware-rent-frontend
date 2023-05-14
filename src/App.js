@@ -8,9 +8,9 @@ import {
 } from "react-router-dom";
 import ProductsComponent from "./components/products.component";
 import Categories from "./components/categories.component";
+import Cart from "./components/cart.component";
+
 import Dropdown from 'react-bootstrap/Dropdown';
-
-
 import AuthService from "./services/auth.service";
 
 
@@ -60,7 +60,7 @@ class App extends Component {
 
   render() {
     const { currentUser, showModeratorBoard, showAdminBoard } = this.state;
-
+    const cartItemsAmount = JSON.parse(localStorage.getItem("cart")).length;
     return (
       <div >
 
@@ -96,8 +96,8 @@ class App extends Component {
             )}
           </div>
           {currentUser && (
-            <div>
-              <DropdownButton className="dropdown-button" variant="text" title="Tables">
+
+              <DropdownButton className=" nav-item" variant="text" title="Tables">
                 <Dropdown.Item href="/products">
                   Products
                 </Dropdown.Item>
@@ -105,12 +105,13 @@ class App extends Component {
                   Categories
                 </Dropdown.Item>
               </DropdownButton>
-            </div>
-
           )
           }
           {currentUser ? (
+
+
             <div className="navbar-nav ms-auto ">
+                <Link  to={"/cart"} className="shadow-none nav-item btn nav-link bi-cart4"/>
               <li className="nav-item">
                 <Link to={"/profile"} className="nav-link">
                   My Profile
@@ -152,6 +153,7 @@ class App extends Component {
             <Route path="/admin" element={<BoardAdmin />} />
             <Route path="/products" element={<ProductsComponent />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/cart" element={<Cart />} />
 
           </Routes>
         </div>
