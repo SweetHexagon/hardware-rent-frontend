@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import Form from 'react-bootstrap/Form';
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
 import AuthService from "../services/auth.service";
 import { withRouter } from '../common/with-router';
 import {Alert, Button} from "react-bootstrap";
@@ -78,9 +76,6 @@ class Login extends Component {
 
           <Form
             onSubmit={this.handleLogin}
-            ref={c => {
-              this.form = c;
-            }}
           >
             <Form.Group>
               <Form.Label>Username</Form.Label>
