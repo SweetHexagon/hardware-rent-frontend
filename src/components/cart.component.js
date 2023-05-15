@@ -7,6 +7,7 @@ import {Alert, Button} from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import ProductsService from "../services/products.service";
 import ordersService from "../services/orders.service";
+import MaterialReactTable from "material-react-table";
 
 export default class Cart extends React.Component {
 
@@ -15,6 +16,8 @@ export default class Cart extends React.Component {
     this.onChangeDueDate = this.onChangeDueDate.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
     this.handleSubmitOrder = this.handleSubmitOrder.bind(this);
+    this.deleteOrderPosition = this.deleteOrderPosition.bind(this);
+
     this.state = {
       redirect: null,
       products: [],
@@ -54,33 +57,37 @@ export default class Cart extends React.Component {
       ({
         productId: id,
         quantity,
-        description: description
       })
     )
-    const body = {dueDate, orderDetails: products};
+    const body = {dueDate, description: description, orderDetails: products};
     console.log(body)
 
     OrdersService.postNewOrder(body).then(
       () => {
         localStorage.setItem("cart", JSON.stringify([]));
         this.setState({
-          successMessage: "createdNewOrder: "
+          successMessage: "Created new order"
         });
       },
       error => {
-        const status = error.response.status;
-        let resMessage = "";
-        if(status === 401){
-          resMessage = "invalid user";
-        }else{
-          resMessage = "error";
-        }
         this.setState({
-          errorMessage: resMessage
+          errorMessage:
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString(), loading: false
         });
       }
     );
 
+  }
+  deleteOrderPosition(productIdToDelete){
+    let productsInCart = JSON.parse(localStorage.getItem("cart"))
+    let productIndex = productsInCart.findIndex(product => product.id === productIdToDelete);
+    productsInCart.splice(productIndex, 1);
+    localStorage.setItem("cart", JSON.stringify(productsInCart));
+    window.location.reload()
   }
 
   render() {
@@ -95,7 +102,16 @@ export default class Cart extends React.Component {
       let modifiedData = JSON.parse(JSON.stringify(products));
       return modifiedData;
     }
+    const columns = () => {
+      let products = getHeadings().map((row)=>
+        ({
+          accessorKey: row,
+          header: row,
+        })
+      );
 
+      return products
+    }
 
     return (
 
@@ -104,7 +120,12 @@ export default class Cart extends React.Component {
         {successMessage && <Alert variant="success" className="text-center">{successMessage}</Alert>}
         <h1 className="d-flex justify-content-center">Cart</h1>
         {products.length>0?(<div>
-          <Table theadData={getHeadings()} tbodyData={formatProductsData()} onDelete={this.deleteProduct} onAddToCart={this.decreaseProductAvailabilityAndAddToCart}/>
+          <MaterialReactTable   enableColumnResizing enableRowActions={true} renderRowActions={({ row }) => (
+            <div>
+              <button type="button" className="button bi-trash border-0 bg-transparent " onClick={()=>{this.deleteOrderPosition(row.original.id)}}/>
+            </div>
+
+          )}columns={columns()} data={formatProductsData()} />
           <Form
             onSubmit={this.handleSubmitOrder}
             className="card card-container bg-light p-3 mb-5"
@@ -140,7 +161,7 @@ export default class Cart extends React.Component {
 
 
         </div>):(
-          <h2 className="text-center">No items added to cart</h2>
+          <h2 className="text-center">No items in cart</h2>
         )}
 
       </div>

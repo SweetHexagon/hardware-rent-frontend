@@ -50,16 +50,13 @@ export default class AdminUser extends Component {
         });
       },
       error => {
-        const status = error.response.status;
-        let resMessage = "";
-        if(status === 401){
-          resMessage = "invalid user";
-        }else{
-          resMessage = "error";
-        }
-
         this.setState({
-          errorMessage: resMessage
+          errorMessage:
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString(), loading: false
         });
       }
     );
@@ -83,16 +80,13 @@ export default class AdminUser extends Component {
         });
       },
       error => {
-        const status = error.response.status;
-        let resMessage = "";
-        if(status === 401){
-          resMessage = "invalid user";
-        }else{
-          resMessage = "error";
-        }
-
         this.setState({
-          errorMessage: resMessage
+          errorMessage:
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString()
         });
       }
     );

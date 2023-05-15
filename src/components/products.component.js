@@ -5,6 +5,16 @@ import {Navigate} from "react-router-dom";
 import ProductsService from "../services/products.service";
 import productsService from "../services/products.service";
 import {Alert} from "react-bootstrap";
+import MaterialReactTable from "material-react-table";
+import Action from "material-react-table";
+
+import {Box, CircularProgress, Fab, Icon, IconButton} from "@mui/material";
+import { render } from "react-dom";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import {ValuePointer as tableIcons} from "@sinclair/typebox/value";
+import {Edit} from "@mui/icons-material";
+import AuthService from "../services/auth.service";
 
 export default class ProductsComponent extends React.Component {
 
@@ -19,18 +29,30 @@ export default class ProductsComponent extends React.Component {
     this.state = {
       redirect: null,
       products: [],
-      errorMessage: undefined
+      errorMessage: undefined,
+      cartNotEmpty: false,
+      isAdmin: false
     };
   }
    componentDidMount() {
+      const user = AuthService.getCurrentUser();
+      const isAdmin = user.authorities.some(authority => authority.authority === 'ROLE_ADMIN')
+       this.setState({cartNotEmpty: JSON.parse(localStorage.getItem("cart")).length>0, isAdmin: isAdmin})
 
-      ProductsService.getAllProducts().then((response)=>{
+     ProductsService.getAllProducts().then((response)=>{
         let products = this.replaceProductsFromCart(response.data);
 
         this.setState({ products: products});
 
       }).catch( (error)=>{
-        this.setState({errorMessage: error.message});
+        this.setState({
+          errorMessage:
+            (error.response &&
+              error.response.data &&
+              error.response.data.message) ||
+            error.message ||
+            error.toString()
+        });
       });
 
   }
@@ -46,11 +68,17 @@ export default class ProductsComponent extends React.Component {
     return updatedProductsFromResponse;
   }
   deleteProduct(id) {
-    productsService.deleteProduct(id).then(
-      ()=>{window.location.reload();}
-    ).catch((error)=>{
-      this.setState({errorMessage: error.message});
-    });
+    const {cartNotEmpty} = this.state;
+    if(!cartNotEmpty){
+      productsService.deleteProduct(id).then(
+        ()=>{window.location.reload();}
+      ).catch((error)=>{
+        this.setState({errorMessage: error.message});
+      });
+    }else {
+      alert("cart not empty")
+    }
+
   }
   addProductToCart(product){
     let cart = JSON.parse(localStorage.getItem("cart"));
@@ -79,9 +107,10 @@ export default class ProductsComponent extends React.Component {
       })
     this.setState({products: updatedProducts})
     }
+    onDeleteHandle
 
   render() {
-    const { products, errorMessage} = this.state;
+    const { products, errorMessage, cartNotEmpty, isAdmin} = this.state;
     if (this.state.redirect) {
       return <Navigate to={this.state.redirect} />
     }
@@ -92,6 +121,16 @@ export default class ProductsComponent extends React.Component {
       let modifiedData = JSON.parse(JSON.stringify(products));
       return modifiedData;
     }
+    const columns = () => {
+      let products = getHeadings().map((row)=>
+        ({
+          accessorKey: row,
+          header: row,
+        })
+      );
+
+      return products
+    }
 
 
       return (
@@ -100,7 +139,18 @@ export default class ProductsComponent extends React.Component {
 
           <h1 className="d-flex justify-content-center">Products</h1>
           {products.length>0?(
-            <Table theadData={getHeadings()} tbodyData={formatProductsData()} onDelete={this.deleteProduct} onAddToCart={this.decreaseProductAvailabilityAndAddToCart}/>
+            //<Table theadData={getHeadings()} tbodyData={formatProductsData()} onDelete={this.deleteProduct} onAddToCart={this.decreaseProductAvailabilityAndAddToCart}/>
+            <MaterialReactTable enableRowActions={true} renderRowActions={({ row }) => (
+                <div>
+                  <button type="button" className="button bi-basket2 border-0 bg-transparent " onClick={()=>{this.decreaseProductAvailabilityAndAddToCart(row.original.id, 1)}}/>
+                  {isAdmin &&
+                    <button type="button" className="button bi-trash border-0 bg-transparent " onClick={()=>{this.deleteProduct(row.original.id)}}/>}
+
+                </div>
+
+            )}
+              columns={columns()} data={formatProductsData()} />
+
           ):(
             <h2>No data</h2>
           )}

@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import Form from 'react-bootstrap/Form';
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
 import AuthService from "../services/auth.service";
 import { withRouter } from '../common/with-router';
 import {Alert, Button} from "react-bootstrap";
@@ -19,7 +17,8 @@ class Register extends Component {
       email: "",
       password: "",
       successful: false,
-      errorMessage: ""
+      errorMessage: "",
+      loading: false
     };
   }
 
@@ -45,7 +44,8 @@ class Register extends Component {
     e.preventDefault();
 
     this.setState({
-      errorMessage: undefined
+      errorMessage: undefined,
+      loading:true
     });
 
       AuthService.register(
@@ -60,30 +60,25 @@ class Register extends Component {
               window.location.reload();
             },
             error => {
-              const status = error.response.status;
-              let resMessage = "";
-              if(status === 401){
-                resMessage = "invalid user";
-              }else{
-                resMessage = "error";
-              }
               this.setState({
-                errorMessage: resMessage
+                errorMessage:
+                  (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                  error.message ||
+                  error.toString(), loading: false
               });
             }
           );
         },
         error => {
-          const status = error.response.status;
-          let resMessage = "";
-          if(status === 401){
-            resMessage = "invalid user";
-          }else{
-            resMessage = "error";
-          }
-
           this.setState({
-            errorMessage: resMessage
+            errorMessage:
+              (error.response &&
+                error.response.data &&
+                error.response.data.message) ||
+              error.message ||
+              error.toString(), loading: false
           });
         }
     );
@@ -91,45 +86,50 @@ class Register extends Component {
   }
 
   render() {
-    const {errorMessage} = this.state
+    const {errorMessage, loading} = this.state
     return (
-      <div className="col-md-12 d-flex justify-content-center align-items-center ">
-        <div className="card card-container bg-light p-3 align-items-center" >
-          <img
-            src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-            alt="profile-img"
-            className="card-img-top rounded-circle mb-2 w-50"
-          />
+      <div className="container w-25">
+        <div className="row">
           <Form
             onSubmit={this.handleRegister}
+            className="col-10 card card-container bg-light p-3 mb-5 justify-content-center align-items-center"
           >
-            <Form.Group>
+            <img
+              src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
+              alt="profile-img"
+              className="card-img-top rounded-circle mb-2 w-50"
+            />
+            <Form.Group
+              className="col-12 mb-2">
               <Form.Label>Username</Form.Label>
               <Form.Control type="text"
                             placeholder="Enter username"
                             onChange={this.onChangeUsername}
                             required/>
             </Form.Group>
-            <Form.Group>
+            <Form.Group
+              className="col-12 mb-2">
               <Form.Label>E-mail</Form.Label>
               <Form.Control type="email"
                             placeholder="Enter e-mail"
                             onChange={this.onChangeEmail}
                             required/>
             </Form.Group>
-            <Form.Group className="mb-2">
+            <Form.Group className="col-12 mb-2">
               <Form.Label>Password</Form.Label>
               <Form.Control type="password"
                             placeholder="Enter password"
                             onChange={this.onChangePassword}
                             required/>
             </Form.Group>
-            <Button className="w-100 mb-2" variant="primary" type="submit">
-              Submit
+            <Button className="col-12 mb-2" variant="primary" type="submit">
+              {loading && <div className="spinner-grow spinner-grow-sm" role="status"/>}
+              <span className="sr-only">Submit</span>
+
             </Button>
-            {errorMessage && (<Alert variant="danger" className="text-center">{errorMessage}</Alert>)}
           </Form>
         </div>
+        <div className="row col-11">{errorMessage && (<Alert variant="danger" className="text-center">{errorMessage}</Alert>)}</div>
       </div>
     );
   }
